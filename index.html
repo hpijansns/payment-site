@@ -26,14 +26,14 @@
 
         <main class="p-4 flex-1">
             <div class="bg-white rounded-3xl overflow-hidden shadow-sm animate-up">
-                <!-- Price Section -->
+                <!-- Price Section - Fixed to ₹1 -->
                 <div class="bg-indigo-600 p-8 text-center text-white">
                     <p class="text-indigo-100 text-xs font-bold uppercase mb-1">Amount to Pay</p>
-                    <h1 id="amount-text" class="text-5xl font-black">₹1,000</h1>
+                    <h1 id="amount-text" class="text-5xl font-black">₹1</h1>
                     <p id="timer" class="mt-4 bg-indigo-500/50 inline-block px-4 py-1 rounded-full text-xs font-medium">Expires in 15:00</p>
                 </div>
 
-                <div class="p-6">
+                <div class="p-6 text-center">
                     <!-- QR Code Section -->
                     <div class="flex flex-col items-center mb-8">
                         <div class="bg-white p-2 border-2 border-gray-100 rounded-2xl mb-2">
@@ -43,21 +43,21 @@
                     </div>
 
                     <!-- UPI ID Box -->
-                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-8 flex items-center justify-between">
+                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-8 flex items-center justify-between text-left">
                         <div>
                             <p class="text-[10px] text-gray-400 font-bold uppercase">UPI ID</p>
                             <p id="upi-val" class="text-sm font-bold text-gray-800">paytm.s1h6t6g@pty</p>
                         </div>
-                        <button onclick="copyUpi()" id="copy-btn" class="bg-gray-800 text-white text-[10px] font-black px-4 py-2 rounded-xl">COPY</button>
+                        <button onclick="copyUpi()" id="copy-btn" class="bg-gray-800 text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase transition-colors">Copy ID</button>
                     </div>
 
                     <!-- Primary Pay Button -->
                     <a id="main-pay-btn" href="#" class="block w-full bg-indigo-600 text-white text-center py-4 rounded-2xl font-black text-lg btn-shadow mb-8 active:scale-95 transition-transform">
-                        PAY NOW (ANY APP)
+                        PAY ₹1 NOW
                     </a>
 
                     <!-- Individual Apps -->
-                    <p class="text-[10px] font-black text-gray-400 uppercase mb-4 text-center tracking-widest text-indigo-600">Or Select Specific App</p>
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-4 text-center tracking-widest text-indigo-600">Select Your App</p>
                     <div class="grid grid-cols-3 gap-4">
                         <a id="link-phonepe" href="#" class="flex flex-col items-center gap-2">
                             <img src="https://cdn.razorpay.com/app/phonepe.svg" class="w-12 h-12 rounded-xl shadow-sm border border-gray-50">
@@ -76,29 +76,29 @@
             </div>
         </main>
 
-        <!-- Footer -->
         <footer class="p-6 text-center opacity-30">
             <img src="https://shopindiaonline.in/wp-content/uploads/2023/09/payment-logo-icons-1024x272-1.png" class="h-4 mx-auto grayscale" alt="UPI">
         </footer>
     </div>
 
     <script>
+        // CONFIGURATION
         const UPI_ID = "paytm.s1h6t6g@pty";
-        const amount = localStorage.getItem("selectedTotalPrice") || 1000;
-        const note = encodeURIComponent("Payment for Ticket");
+        const amount = 1; // AB YE ₹1 FIX HO GAYA HAI
+        const note = encodeURIComponent("Test Payment 1 Rupee");
 
         // UI Update
-        document.getElementById('amount-text').innerText = "₹" + Number(amount).toLocaleString('en-IN');
+        document.getElementById('amount-text').innerText = "₹1";
         
-        // Standard UPI link
-        const upiLink = `upi://pay?pa=${UPI_ID}&pn=TicketPayment&am=${amount}&cu=INR&tn=${note}`;
+        // Standard UPI link for Universal Button and QR
+        const upiLink = `upi://pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR&tn=${note}`;
         
-        // Android Intents (These are most powerful for mobile)
+        // Android Specific Powerful Intents
         const gPayIntent = `intent://pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR&tn=${note}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
         const phonePeIntent = `intent://pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR&tn=${note}#Intent;scheme=upi;package=com.phonepe.app;end`;
         const paytmIntent = `intent://pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR&tn=${note}#Intent;scheme=upi;package=net.one97.paytm;end`;
 
-        // Setting Links
+        // Setting Links to HTML Elements
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
         document.getElementById('main-pay-btn').href = upiLink;
         document.getElementById('link-gpay').href = gPayIntent;
@@ -111,16 +111,19 @@
             btn.innerText = "COPIED";
             btn.classList.replace('bg-gray-800', 'bg-green-600');
             setTimeout(() => {
-                btn.innerText = "COPY";
+                btn.innerText = "COPY ID";
                 btn.classList.replace('bg-green-600', 'bg-gray-800');
             }, 2000);
         }
 
-        // Timer Logic
+        // 15-Minute Countdown
         let timer = 900;
         const timerEl = document.getElementById('timer');
         setInterval(() => {
-            if(timer <= 0) return;
+            if(timer <= 0) {
+                timerEl.innerText = "Payment Expired";
+                return;
+            }
             timer--;
             const m = Math.floor(timer/60);
             const s = timer%60;
