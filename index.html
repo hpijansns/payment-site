@@ -1,13 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Secure UPI Checkout</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #f9fafb; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header class="bg-white border-b p-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+            <div class="flex items-center gap-3">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
+                <img src="https://getlogo.net/wp-content/uploads/2020/04/bookmyshow-logo-vector-xs.png" class="h-6" alt="Logo">
+            </div>
+            <div class="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full border border-green-100">
+                <i data-lucide="shield-check" class="w-4 h-4 text-green-600"></i>
+                <span class="text-[10px] font-bold text-green-700">SECURE</span>
+            </div>
+        </header>
+
+        <main class="p-4 max-w-lg mx-auto w-full">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
+                <div class="bg-slate-50 p-6 text-center border-b">
+                    <p class="text-gray-500 text-xs font-bold uppercase mb-1">Total Payable</p>
+                    <h1 id="display-amount" class="text-4xl font-extrabold text-gray-900">₹1,000</h1>
+                    <div class="mt-3 inline-block bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold" id="timer">
+                        Expiry: 15:00
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="p-2 border-2 border-dashed border-gray-200 rounded-xl mb-3">
+                            <img id="qr-code" src="" alt="QR" class="w-44 h-44">
+                        </div>
+                        <p class="text-[11px] text-gray-400 font-medium flex items-center gap-1 uppercase">
+                            <i data-lucide="qr-code" class="w-3 h-3"></i> Scan to pay
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 border rounded-xl p-3 mb-6 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">UPI ID</p>
+                            <p class="text-sm font-bold text-gray-800">paytm.s1h6t6g@pty</p>
+                        </div>
+                        <button onclick="copyUpi()" id="copy-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold">COPY</button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-xs font-bold text-gray-500 uppercase">Select App to Pay</p>
+                        <a id="phonepe-btn" href="#" class="flex items-center justify-between p-3 border rounded-xl border-purple-200 bg-purple-50/30">
+                            <div class="flex items-center gap-3">
+                                <img src="https://cdn.razorpay.com/app/phonepe.svg" class="w-8 h-8">
+                                <span class="font-bold text-gray-700">PhonePe</span>
+                            </div>
+                            <span class="text-[10px] bg-purple-100 text-purple-600 px-2 py-1 rounded font-bold uppercase">Fast</span>
+                        </a>
+                        <a id="paytm-btn" href="#" class="flex items-center gap-3 p-3 border rounded-xl hover:bg-gray-50">
+                            <img src="https://cdn.razorpay.com/app/paytm.svg" class="w-8 h-8">
+                            <span class="font-bold text-gray-700">Paytm</span>
+                        </a>
+                        <a id="gpay-btn" href="#" class="flex items-center gap-3 p-3 border rounded-xl hover:bg-gray-50">
+                            <img src="https://cdn.razorpay.com/app/google_pay.svg" class="w-8 h-8">
+                            <span class="font-bold text-gray-700">Google Pay</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const UPI_ID = "paytm.s1h6t6g@pty";
+        let amount = localStorage.getItem("selectedTotalPrice") || 1000;
+
+        // Update UI
+        document.getElementById('display-amount').innerText = "₹" + Number(amount).toLocaleString('en-IN');
+        
+        // Links Logic
+        const upiUrl = `upi://pay?pa=${UPI_ID}&pn=TicketPayment&am=${amount}&cu=INR`;
+        const ppPayload = btoa(JSON.stringify({
+            contact: { vpa: UPI_ID },
+            p2pPaymentCheckoutParams: { note: "Ticket Payment", initialAmount: amount * 100, currency: "INR" }
+        }));
+        
+        document.getElementById('qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
+        document.getElementById('phonepe-btn').href = `phonepe://native?data=${encodeURIComponent(ppPayload)}&id=p2ppayment`;
+        document.getElementById('paytm-btn').href = `paytmmp://cash_wallet?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR`;
+        document.getElementById('gpay-btn').href = `tez://upi/pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR`;
+
+        function copyUpi() {
+            navigator.clipboard.writeText(UPI_ID);
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = "COPIED!";
+            btn.classList.replace('bg-indigo-600', 'bg-green-600');
+            setTimeout(() => {
+                btn.innerText = "COPY";
+                btn.classList.replace('bg-green-600', 'bg-indigo-600');
+            }, 2000);
+        }
+
+        // Timer
+        let time = 900;
+        setInterval(() => {
+            if(time <= 0) return;
+            time--;
+            const m = Math.floor(time/60);
+            const s = time%60;
+            document.getElementById('timer').innerText = `Expiry: ${m}:${s < 10 ? '0'+s : s}`;
+        }, 1000);
+
+        lucide.createIcons();
+    </script>
+</body>
 </html>
